@@ -1,9 +1,8 @@
-package com.yangql.entities;
+package com.yangql.site.entities;
 
 import java.io.Serializable;
 
 import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,8 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 
-
-@SuppressWarnings({ "serial" })
 @Entity
 @Table(name="UserAccount")
 public class User implements Serializable {
@@ -22,7 +19,6 @@ public class User implements Serializable {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "UserId")
 	public long getUserId() {
 		return userId;
 	}
@@ -30,7 +26,6 @@ public class User implements Serializable {
 		this.userId = userId;
 	}
 	@Basic
-	@Column(name = "UserName")
 	public String getUserName() {
 		return userName;
 	}
@@ -38,7 +33,6 @@ public class User implements Serializable {
 		this.userName = userName;
 	}
 	@Basic
-	@Column(name = "UserPassWord")
 	public String getUserPassword() {
 		return userPassword;
 	}

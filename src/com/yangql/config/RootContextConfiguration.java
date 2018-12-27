@@ -107,7 +107,7 @@ public class RootContextConfiguration
     public Jaxb2Marshaller jaxb2Marshaller()    //内容协商
     {
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        marshaller.setPackagesToScan(new String[] { "com.wrox.site" });
+        marshaller.setPackagesToScan(new String[] { "com.yangql.site" });
         return marshaller;
     }
 
@@ -150,7 +150,7 @@ public class RootContextConfiguration
     public DataSource springJpaDataSource()
     {
         JndiDataSourceLookup lookup = new JndiDataSourceLookup();
-        return lookup.getDataSource("jdbc/ChatServer");
+        return lookup.getDataSource("java:comp/env/jdbc/ChatServer");
     }
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean()
@@ -179,4 +179,5 @@ public class RootContextConfiguration
                 this.entityManagerFactoryBean().getObject()
         );
     }
+
 }

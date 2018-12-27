@@ -16,10 +16,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
-import com.yangql.entities.User;
 import com.yangql.site.chat.Chat;
 import com.yangql.site.chat.ChatServer;
 import com.yangql.site.chat.ChatServer.ChatGroup;
+import com.yangql.site.entities.User;
 import com.yangql.site.forms.UserLogin;
 import com.yangql.site.forms.UserRegister;
 import com.yangql.site.interfaceClasses.UserService;
@@ -101,11 +101,12 @@ public class ChatServerController {
 			model.put("userExist", true);
 			return new ModelAndView("register");
 		}
+		System.out.println("here");
 		User user=new User();
 		user.setUserName(form.getUserName());
 		user.setUserPassword(form.getPassWord());
-		user.setUserId(0);
-		userService.saveUser(user);    //仓库逻辑中会设置id
+		userService.saveUser(user);    
+		System.out.println("here2");
 		
 		session.setAttribute("userName", user.getUserName());    //设置会话
 		return new ModelAndView(new RedirectView("/",true));	//重定向到主页

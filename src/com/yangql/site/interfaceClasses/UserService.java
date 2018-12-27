@@ -2,7 +2,7 @@ package com.yangql.site.interfaceClasses;
 
 import java.util.List;
 
-import com.yangql.entities.User;
+import com.yangql.site.entities.User;
 
 
 public interface UserService {

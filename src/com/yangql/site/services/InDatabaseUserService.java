@@ -3,10 +3,11 @@ package com.yangql.site.services;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
-import com.yangql.entities.User;
+import com.yangql.site.entities.User;
 import com.yangql.site.interfaceClasses.UserRepository;
 import com.yangql.site.interfaceClasses.UserService;
 @Service
@@ -14,27 +15,27 @@ public class InDatabaseUserService implements UserService {
 	@Inject UserRepository userRepo;
 	
 	@Override
+	@Transactional
 	public User getUser(long id) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.userRepo.getUser(id);
 	}
 
 	@Override
+	@Transactional
 	public void saveUser(User user) {
-		// TODO Auto-generated method stub
-
+		this.userRepo.addUser(user);
 	}
 
 	@Override
+	@Transactional
 	public List<User> getAllUser() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.userRepo.getAllUser();
 	}
 
 	@Override
+	@Transactional
 	public User getUserByName(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.userRepo.getUserByName(name);
 	}
 
 }
