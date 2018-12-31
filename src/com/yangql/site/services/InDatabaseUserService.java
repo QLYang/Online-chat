@@ -17,19 +17,19 @@ public class InDatabaseUserService implements UserService {
 	@Override
 	@Transactional
 	public User getUser(long id) {
-		return this.userRepo.getUser(id);
+		return this.userRepo.get(id);
 	}
 
 	@Override
 	@Transactional
 	public void saveUser(User user) {
-		this.userRepo.addUser(user);
+		this.userRepo.add(user);
 	}
 
 	@Override
 	@Transactional
 	public List<User> getAllUser() {
-		return this.userRepo.getAllUser();
+		return (List<User>) this.userRepo.getAll();
 	}
 
 	@Override
