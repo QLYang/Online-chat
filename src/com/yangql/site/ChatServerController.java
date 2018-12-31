@@ -101,12 +101,10 @@ public class ChatServerController {
 			model.put("userExist", true);
 			return new ModelAndView("register");
 		}
-		System.out.println("here");
 		User user=new User();
 		user.setUserName(form.getUserName());
 		user.setUserPassword(form.getPassWord());
 		userService.saveUser(user);    
-		System.out.println("here2");
 		
 		session.setAttribute("userName", user.getUserName());    //设置会话
 		return new ModelAndView(new RedirectView("/",true));	//重定向到主页

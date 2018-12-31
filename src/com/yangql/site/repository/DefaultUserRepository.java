@@ -3,9 +3,8 @@ package com.yangql.site.repository;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 
 import org.springframework.stereotype.Repository;
 
@@ -16,11 +15,10 @@ import com.yangql.site.interfaceClasses.UserRepository;
 public class DefaultUserRepository implements UserRepository {
 	@PersistenceContext EntityManager entityManager;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> getAllUser() {
-		CriteriaBuilder builder=this.entityManager.getCriteriaBuilder();
-		CriteriaQuery<User> query=builder.createQuery(User.class);
-		return this.entityManager.createQuery(query.select(query.from(User.class))).getResultList();
+		return this.entityManager.createQuery("SELECT u FROM User u").getResultList();
 	}
 
 	@Override
@@ -30,13 +28,13 @@ public class DefaultUserRepository implements UserRepository {
 
 	@Override
 	public User getUserByName(String name) {
-		List<User> list=this.getAllUser();
-		for(User user : list) {
-			if (user.getUserName().equals(name)) {
-				return user;
-			}
+		User result=new User();
+		try {	
+			result=(User)this.entityManager.createQuery("SELECT u FROM User u WHERE u.userName=:name").setParameter("name", name).getSingleResult();
+		} catch (NoResultException e) {
+			result=null;
 		}
-		return null;
+		return result;
 	}
 
 	@Override

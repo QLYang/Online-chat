@@ -1,29 +1,40 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%--@elvariable id="activeGroups" type="java.util.Map<long, com.yangql.site.chat.ChatServer.ChatGroup>" --%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>聊天室</title>
-</head>
-<body>
+<c:set var="isLogin" value="true" />
+<template:main htmlTitle="列表" isLogin="${isLogin }">
 	<h1>活跃列表</h1>
 	<c:choose>
 		<c:when test="${fn:length(activeGroups) == 0}">
 			<i>无活跃房间 </i>
 		</c:when>
 		<c:otherwise>
-			<c:forEach items="${activeGroups}" var="e">
-				<a href="javascript:void 0;" onclick="joinGroup(${e.key});">房间名称:
-					${e.value.chat.groupName}</a>
-				<br />
-			</c:forEach>
+			<table class="table table-hover">
+				<thread>
+				<tr>
+					<th>房间Id</th>
+					<th>房间名称</th>
+					<th>活跃人数</th>
+					<th></th>
+				</tr>
+				</thread>
+				<tbody>
+					<c:forEach items="${activeGroups}" var="e">
+						<tr>
+							<td>${e.value.groupId }</td>
+							<td>${e.value.chat.groupName}</td>
+							<td>${e.value.memNums }</td>
+							<td><a href="javascript:void 0;" onclick="joinGroup(${e.key});">点击进入</a></td>
+						</tr>
+					</c:forEach>
+				</tbody>
+			</table>
 		</c:otherwise>
 	</c:choose>
-	</br>
-	<a href="javascript:void 0;" onclick="createGroup();">创建新房间</a>
-	<br />
+	<br></br>
+	<br></br>
+	<button class="btn btn-large btn-block" type="button" onclick="createGroup();">创建新房间</button>
+	
 	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script type="text/javascript" language="javascript">
             var createGroup, joinGroup;
@@ -63,5 +74,4 @@
                 };
             });
         </script>
-</body>
-</html>
+</template:main>

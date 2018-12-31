@@ -3,7 +3,7 @@ package com.yangql.site.services;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.stereotype.Service;
 

@@ -3,23 +3,9 @@
 <%--@elvariable id="groupId" type="java.lang.Long" --%>
 <%--@elvariable id="action" type="java.lang.String" --%>
 <%--@elvariable id="userName" type="java.lang.String" --%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-<link rel="stylesheet"
-	href="<c:url value="/resource/stylesheet/chat.css" />" />
-<link rel="stylesheet"
-	href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css" />
-<script
-	src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-
-<title>聊天室</title>
-</head>
-<body>
-	<div id="chatContainer">
-		<div id="chatLog"></div>
+<template:chatGroup htmlTitle="聊天组">
+	<div id="chatContainer" >
+		<div id="chatLog" style="overFlow-y:scroll"></div>
 		<div id="messageContainer">
 			<textarea id="messageArea"></textarea>
 		</div>
@@ -68,9 +54,10 @@
 		var infoMessage = function(m) {
 								chatLog.append($('<div>').addClass(
 										'informational').text(m))
+								$("#chatLog").scrollTop($("#chatLog")[0].scrollHeight)//滚动条自动到底部
 							}
 
-							var objectMessage = function(message) {
+		var objectMessage = function(message) {
 								var log = $('<div>')
 								var date = message.timeStamp;
 								if (message.username != null) {
@@ -89,6 +76,7 @@
 											date + ' ' + message.content)
 								}
 								chatLog.append(log) //输出文本
+								$("#chatLog").scrollTop($("#chatLog")[0].scrollHeight)//滚动条自动到底部
 							}
 	<%--连接服务器--%>
 		var server
@@ -172,5 +160,4 @@
 							window.onbeforeunload = disconnect;
 						})
 	</script>
-</body>
-</html>
+</template:chatGroup>

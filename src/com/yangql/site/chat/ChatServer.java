@@ -90,6 +90,7 @@ public class ChatServer {
 				} else {
 					session.close();
 					group.groupMembers.remove(userName);// 移除该用户的session
+					group.memNums--;
 					this.sendSpecificMsg(group, userName, ChatMessage.msgType.LEFT);// 发送离开消息
 				}
 			} catch (Exception e) {
@@ -111,6 +112,7 @@ public class ChatServer {
 
 			} else {
 				group.groupMembers.remove(username);// 移除该用户的session
+				group.memNums--;
 				this.sendSpecificMsg(group, username, ChatMessage.msgType.ERROR);// 发送消息
 			}
 		} catch (Exception e2) {
@@ -175,7 +177,14 @@ public class ChatServer {
 		private Long groupId;
 		private Map<String, Session> groupMembers = new Hashtable<>();
 		private Chat chat;
-
+		private Long memNums;
+		
+		public Long getMemNums() {
+			return memNums;
+		}
+		public void setMemNums(Long memNums) {
+			this.memNums = memNums;
+		}
 		public Chat getChat() {
 			return chat;
 		}
@@ -198,6 +207,7 @@ public class ChatServer {
 		}
 
 		public void setGroupMember(String name, Session groupMember) {
+			this.memNums++;
 			this.groupMembers.put(name, groupMember);
 		}
 
@@ -220,6 +230,7 @@ public class ChatServer {
 		ChatGroup newGroup = new ChatServer.ChatGroup();
 		newGroup.setChat(newChat);
 		newGroup.setGroupId();
+		newGroup.setMemNums(0L);
 		return newGroup;
 	}
 
