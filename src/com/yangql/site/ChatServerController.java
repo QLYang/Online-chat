@@ -1,5 +1,6 @@
 package com.yangql.site;
 
+import java.text.ParseException;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -47,7 +48,7 @@ public class ChatServerController {
 		return "list";
 	}
 	@RequestMapping(value="/list",method=RequestMethod.POST)
-	public ModelAndView list(Map<String, Object>model,HttpSession session,ServletRequest request) {
+	public ModelAndView list(Map<String, Object>model,HttpSession session,ServletRequest request) throws ParseException {
 		String action=((HttpServletRequest)request).getParameter("action");
 		
 		if("create".equalsIgnoreCase(action)) {    //创建房间

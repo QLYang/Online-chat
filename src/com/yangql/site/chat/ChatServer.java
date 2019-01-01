@@ -24,11 +24,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yangql.site.DateUtil;
 import com.yangql.site.entities.ChatMessage;
 
-
 @ServerEndpoint(value = "/chat/{groupId}/{userName}", configurator = ChatServer.EndpointConfigurator.class)
 public class ChatServer {
 	private static ObjectMapper mapper = new ObjectMapper();
-
+	
 	public static Map<Long, ChatGroup> activeGroupsQueue = new Hashtable<>();
 	public static Map<Long, ChatGroup> pendingGroupsQueue = new Hashtable<>(); // 还没有关联到session
 
@@ -57,12 +56,11 @@ public class ChatServer {
 					group.setGroupMember(userName, session);// 加入session
 					group.chat.setUsernameList(userName);// 成员名字保存在chat
 					// 向其他成员发送消息：xx已加入
-					this.sendSpecificMsg(group, userName, ChatMessage.msgType.JOINED);
+					this.sendControllMsg(group, userName, ChatMessage.msgType.JOINED);
 				}
 			}
 		} catch (Exception e) {
 			log("Open websocket connection error!");
-			log(e);
 			e.printStackTrace();
 		}
 	}
@@ -76,11 +74,12 @@ public class ChatServer {
 			message.setTimeStamp(DateUtil.formatDate(date));
 			message.setDate(date);
 			group.chat.setMessageList(message);// 保存msg
+			//SpringContext.printBean();
+			SpringContext.getChatMessageManager().saveChatMessage(message);
 			// 发送给组员
 			sendJsonMsgToGroupMembers(group, message);
 		} catch (Exception e) {
 			log("Handle message error!");
-			log(e);
 			e.printStackTrace();
 		}
 
@@ -101,7 +100,7 @@ public class ChatServer {
 					session.close();
 					group.groupMembers.remove(userName);// 移除该用户的session
 					group.memNums--;
-					this.sendSpecificMsg(group, userName, ChatMessage.msgType.LEFT);// 发送离开消息
+					this.sendControllMsg(group, userName, ChatMessage.msgType.LEFT);// 发送离开消息
 				}
 			} catch (Exception e) {
 				log(e);
@@ -123,7 +122,7 @@ public class ChatServer {
 			} else {
 				group.groupMembers.remove(username);// 移除该用户的session
 				group.memNums--;
-				this.sendSpecificMsg(group, username, ChatMessage.msgType.ERROR);// 发送消息
+				this.sendControllMsg(group, username, ChatMessage.msgType.ERROR);// 发送消息
 			}
 		} catch (Exception e2) {
 			log(e);
@@ -137,9 +136,9 @@ public class ChatServer {
 	}
 
 	/*
-	 * 发送特定消息(LEFT/JOINED/ERROR)
+	 * 发送控制消息(LEFT/JOINED/ERROR)
 	 */
-	private void sendSpecificMsg(ChatGroup group, String username, ChatMessage.msgType type) throws ParseException {
+	private void sendControllMsg(ChatGroup group, String username, ChatMessage.msgType type) throws ParseException {
 		ChatMessage message = null;		
 		
 		if (type.equals(ChatMessage.msgType.LEFT)) {

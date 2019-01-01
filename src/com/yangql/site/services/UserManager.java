@@ -3,15 +3,15 @@ package com.yangql.site.services;
 import java.util.List;
 
 import javax.inject.Inject;
-import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.yangql.site.entities.User;
 import com.yangql.site.interfaceClasses.UserRepository;
 import com.yangql.site.interfaceClasses.UserService;
 @Service
-public class InDatabaseUserService implements UserService {
+public class UserManager implements UserService {
 	@Inject UserRepository userRepo;
 	
 	@Override
