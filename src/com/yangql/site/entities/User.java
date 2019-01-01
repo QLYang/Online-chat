@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 
+@SuppressWarnings("serial")
 @Entity
 @Table(name="UserAccount")
 public class User implements Serializable {

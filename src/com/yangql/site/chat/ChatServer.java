@@ -1,6 +1,8 @@
 package com.yangql.site.chat;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +21,9 @@ import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yangql.site.DateUtil;
+import com.yangql.site.entities.ChatMessage;
 
-import com.yangql.site.chat.Chat.ChatMessage;
 
 @ServerEndpoint(value = "/chat/{groupId}/{userName}", configurator = ChatServer.EndpointConfigurator.class)
 public class ChatServer {
@@ -46,6 +49,7 @@ public class ChatServer {
 				if (action.equals("create")) {
 					ChatGroup activeGroup = ChatServer.pendingGroupsQueue.remove(groupId);// 从等待队列取出
 					assert (activeGroup != null);
+					assert(session!=null);
 					activeGroup.setGroupMember(userName, session);
 					ChatServer.activeGroupsQueue.put(activeGroup.groupId, activeGroup);// 加入激活队列
 				} else if (action.equals("join")) {
@@ -57,7 +61,9 @@ public class ChatServer {
 				}
 			}
 		} catch (Exception e) {
+			log("Open websocket connection error!");
 			log(e);
+			e.printStackTrace();
 		}
 	}
 
@@ -66,12 +72,16 @@ public class ChatServer {
 		ChatGroup group = ChatServer.activeGroupsQueue.get(groupId);
 		try {
 			ChatMessage message = mapper.readValue(msg, ChatMessage.class);
-			message.setTimeStamp();// 设置时间戳
+			Date date=new Date();
+			message.setTimeStamp(DateUtil.formatDate(date));
+			message.setDate(date);
 			group.chat.setMessageList(message);// 保存msg
 			// 发送给组员
-			sendJsonMsgToOther(group, message);
+			sendJsonMsgToGroupMembers(group, message);
 		} catch (Exception e) {
+			log("Handle message error!");
 			log(e);
+			e.printStackTrace();
 		}
 
 	}
@@ -127,42 +137,41 @@ public class ChatServer {
 	}
 
 	/*
-	 * 发送特定消息(LEFT/JOINED)
+	 * 发送特定消息(LEFT/JOINED/ERROR)
 	 */
-	private void sendSpecificMsg(ChatGroup group, String username, ChatMessage.msgType type) {
-		ChatMessage message = new ChatMessage();
-		message.setTimeStamp();
-		message.setType(type);
-		message.setUsername(username);
+	private void sendSpecificMsg(ChatGroup group, String username, ChatMessage.msgType type) throws ParseException {
+		ChatMessage message = null;		
+		
 		if (type.equals(ChatMessage.msgType.LEFT)) {
-			message.setContent(" 离开了小组.");
+			message=ChatMessage.createMsg(username, group.groupName, " 离开了小组.", type);
 		} else if (type.equals(ChatMessage.msgType.JOINED)) {
-			message.setContent(" 加入了小组.");
+			message=ChatMessage.createMsg(username, group.groupName, " 加入了小组.", type);
 		} else if (type.equals(ChatMessage.msgType.ERROR)) {
-			message.setContent(" 因为系统错误离开了小组.");
+			message=ChatMessage.createMsg(username, group.groupName, " 因为系统错误离开了小组.", type);
 		}
 		group.chat.setMessageList(message);// 保存
-		this.sendJsonMsgToOther(group, message);// 发送
+		this.sendJsonMsgToGroupMembers(group, message);// 发送
 
 	}
 
 	/*
 	 * 向组内其他成员发送json消息（包括自己）
 	 */
-	private void sendJsonMsgToOther(ChatGroup group, ChatMessage msg) {
+	private void sendJsonMsgToGroupMembers(ChatGroup group, ChatMessage msg) {
 		for (Session userSession : group.getGroupMembers().values()) {
 			this.sendJsonMessage(userSession, msg);
 		}
 	}
 
 	/*
-	 * 发送json
+	 * 发送json消息到一个端点
 	 */
 	private void sendJsonMessage(Session session, ChatMessage message) {
 		try {
 			session.getBasicRemote().sendText(mapper.writeValueAsString(message));
 		} catch (IOException e) {
-			System.out.println("SendObject error");
+			log(e);
+			e.printStackTrace();
 		}
 	}
 
@@ -175,9 +184,10 @@ public class ChatServer {
 
 	public static class ChatGroup {
 		private Long groupId;
+		private String groupName;
 		private Map<String, Session> groupMembers = new Hashtable<>();
 		private Chat chat;
-		private Long memNums;
+		private Long memNums=1L;
 		
 		public Long getMemNums() {
 			return memNums;
@@ -219,27 +229,45 @@ public class ChatServer {
 		private Long getIdSequence() {
 			return idSequence++;
 		}
+		public String getGroupName() {
+			return groupName;
+		}
+		public void setGroupName(String groupName) {
+			this.groupName = groupName;
+		}
+		/*
+		 * 描述：创建新的聊天组
+		 * groupName:组名
+		 * username:创建该组的用户
+		 */
+		public static ChatGroup createChatGroup(String groupName, String username) {
+			Chat newChat = new Chat();
+			newChat.setGroupName(groupName);
+			newChat.setUsernameList(username);
+			
+			ChatGroup newGroup = new ChatServer.ChatGroup();
+			newGroup.setGroupName(groupName);
+			Long groupId=newGroup.setGroupId();	//获得groupId
+			newChat.setGroupId(groupId);//给Chat设置groupId
+			newGroup.setChat(newChat);
+			return newGroup;
+		}
 
 	}
-
-	private static ChatGroup createGroup(String groupName, String username) {
-		Chat newChat = new Chat();
-		newChat.setGroupName(groupName);
-		newChat.setUsernameList(username);
-
-		ChatGroup newGroup = new ChatServer.ChatGroup();
-		newGroup.setChat(newChat);
-		newGroup.setGroupId();
-		newGroup.setMemNums(0L);
-		return newGroup;
-	}
-
+	/*
+	 * 描述：此时聊天组尚未有任何websocket session，所以将其加入pending队列
+	 * groupName:创建的聊天组名
+	 * username:创建者的名称
+	 */
 	public static Long pendingGroups(String groupName, String username) {
-		ChatGroup newGroup = createGroup(groupName, username);
+		ChatGroup newGroup=ChatGroup.createChatGroup(groupName, username);
 		ChatServer.pendingGroupsQueue.put(newGroup.getGroupId(), newGroup);
 		return newGroup.getGroupId();
 	}
-
+	
+	/*
+	 * 获得httpsession
+	 */
 	public static class EndpointConfigurator extends ServerEndpointConfig.Configurator {
 		@Override
 		public void modifyHandshake(ServerEndpointConfig config, HandshakeRequest request, HandshakeResponse response) {

@@ -58,6 +58,7 @@ public class ChatServerController {
 			model.put("groupId", groupId);
 			model.put("action", "create");
 			model.put("userName", userName);
+			model.put("groupName", groupName);
 			return new ModelAndView("chatGroup");
 		}
 		else if ("join".equalsIgnoreCase(action)) {    //加入房间
@@ -74,6 +75,7 @@ public class ChatServerController {
 			model.put("groupId", groupIdLong);
 			model.put("action", "join");
 			model.put("userName", userName);
+			model.put("groupName", group.getGroupName());
 			return new ModelAndView("chatGroup");
 		}
 		return new ModelAndView(new RedirectView("/",true));

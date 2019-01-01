@@ -3,6 +3,7 @@
 <%--@elvariable id="groupId" type="java.lang.Long" --%>
 <%--@elvariable id="action" type="java.lang.String" --%>
 <%--@elvariable id="userName" type="java.lang.String" --%>
+<%--@elvariable id="groupName" type="java.lang.String" --%>
 <template:chatGroup htmlTitle="聊天组">
 	<div id="chatContainer" >
 		<div id="chatLog" style="overFlow-y:scroll"></div>
@@ -137,7 +138,8 @@
 										timeStamp : null, //注意，时间戳在服务器端设置
 										type : 'TEXT',
 										username : userName,
-										content : messageArea.get(0).value
+										content : messageArea.get(0).value,
+										groupName:"${groupName}"
 									}
 									try {
 										var json = JSON.stringify(message);
