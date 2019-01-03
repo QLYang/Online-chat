@@ -2,6 +2,7 @@ package com.yangql.site;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -18,20 +19,21 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.gson.Gson;
-import com.mysql.cj.xdevapi.JsonArray;
 import com.yangql.site.chat.Chat;
 import com.yangql.site.chat.ChatServer;
 import com.yangql.site.chat.ChatServer.ChatGroup;
+import com.yangql.site.entities.ChatMessage;
 import com.yangql.site.entities.User;
 import com.yangql.site.forms.UserLogin;
 import com.yangql.site.forms.UserRegister;
+import com.yangql.site.interfaceClasses.ChatMessageService;
 import com.yangql.site.interfaceClasses.UserService;
 
 @Controller
 public class ChatServerController {
 	@Inject UserService userService;	//服务
+	@Inject ChatMessageService cmService;
 	/*
 	 * 主页
 	 */
@@ -58,7 +60,12 @@ public class ChatServerController {
 		if("create".equalsIgnoreCase(action)) {    //创建房间
 			String userName=session.getAttribute("userName").toString();
 			String groupName=((HttpServletRequest)request).getParameter("groupName");
-			
+			//是否是重复的组名
+			List<ChatMessage> cmList=this.cmService.getChatMessagesByGroupName(groupName);
+			if(!cmList.isEmpty()) {
+				model.put("groupNameExist", true);
+				return new ModelAndView("list");
+			}
 			Long groupId=ChatServer.pendingGroups(groupName,userName);
 			model.put("groupId", groupId);
 			model.put("action", "create");
@@ -153,9 +160,30 @@ public class ChatServerController {
 		model.put("isLogin", true);
 		return new ModelAndView("home");
 	}
+	/*
+	 * 用户登出，注销会话，跳转到主页
+	 */
 	@RequestMapping(value="/logout",method=RequestMethod.GET)
-	public View logout(Map<String, Object>model,HttpSession session) {
+	public View logout(HttpSession session) {
 		session.invalidate();
 		return new RedirectView("/",true);
+	}
+	
+	/*
+	 * 查看该用户的历史消息
+	 */
+	@RequestMapping(value="/history",method=RequestMethod.GET)
+	public ModelAndView history(Map<String, Object>model,HttpSession session) {
+		String username=session.getAttribute("userName").toString();
+		List<String> groupNameList=this.cmService.getGroupNameListByUserName(username);
+		model.put("groupNameList", groupNameList);
+		return new ModelAndView("showGroupName");
+	}
+	@RequestMapping(value="/history",method=RequestMethod.POST)
+	public ModelAndView history(Map<String, Object>model,HttpSession session,ServletRequest request) {
+		String groupName=((HttpServletRequest)request).getParameter("groupName");
+		List<ChatMessage> listOfChatMessage=this.cmService.getChatMessagesByGroupName(groupName);
+		model.put("listOfChatMessage", listOfChatMessage);
+		return new ModelAndView("showMessage");
 	}
 }

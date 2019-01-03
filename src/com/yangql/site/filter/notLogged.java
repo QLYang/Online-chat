@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
  * Servlet Filter implementation class notLogged
  */
 @WebFilter(dispatcherTypes = {DispatcherType.REQUEST }
-					, description = "拦截未登录用户", urlPatterns = { "/list" })
+					, description = "拦截未登录用户", urlPatterns = { "/list","/history"})
 public class notLogged implements Filter {
 	/**
 	 * @see Filter#destroy()

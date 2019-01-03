@@ -1,9 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%--@elvariable id="activeGroups" type="java.util.Map<long, com.yangql.site.chat.ChatServer.ChatGroup>" --%>
+<%--@elvariable id="groupNameExist" type="java.lang.Boolean" --%>
 <c:set var="isLogin" value="true" />
 <template:main htmlTitle="列表" isLogin="${isLogin }">
 	<h1>活跃列表</h1>
+	<c:if test="${groupNameExist}">
+			<div class="alert alert-block">
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
+				<h4>警告</h4>
+				该名称已存在！
+			</div>
+
+		</c:if>
 	<c:choose>
 		<c:when test="${fn:length(activeGroups) == 0}">
 			<i>无活跃房间 </i>
@@ -42,7 +51,7 @@
                 var url = '<c:url value="/list" />';
                 
                 createGroup = function() {
-                    var groupName = prompt('输入房间名称（仅限英文字母）', '');
+                    var groupName = prompt('输入房间名称（包含中文、英文、数字和下划线）', '');
                     if(groupName != null && groupName.trim().length > 0 &&
                     		validateGroupName(groupName))
                         post({action: 'create', groupName: groupName});
@@ -53,10 +62,9 @@
                 };
 
                 var validateGroupName = function(groupName) {
-                    var valid = groupName.match(/^[a-zA-Z0-9_]+$/) != null;
+                    var valid = groupName.match(/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/) != null;
                     if(!valid)
-                        alert('Group names can only contain letters, numbers ' +
-                                'and underscores.');
+                        alert('名称只能包含中文、英文、数字和下划线！');
                     return valid;
                 };
 
