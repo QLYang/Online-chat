@@ -1,6 +1,7 @@
 package com.yangql.site;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -17,6 +18,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.google.gson.Gson;
+import com.mysql.cj.xdevapi.JsonArray;
 import com.yangql.site.chat.Chat;
 import com.yangql.site.chat.ChatServer;
 import com.yangql.site.chat.ChatServer.ChatGroup;
@@ -60,6 +64,10 @@ public class ChatServerController {
 			model.put("action", "create");
 			model.put("userName", userName);
 			model.put("groupName", groupName);
+			//将组成员列表传入jsp(JSON)
+			ArrayList<String> groupMembers=ChatServer.pendingGroupsQueue.get(groupId).getChat().getUsernameList();
+			String jsonList=new Gson().toJson(groupMembers);
+			model.put("groupMemberList", jsonList);
 			return new ModelAndView("chatGroup");
 		}
 		else if ("join".equalsIgnoreCase(action)) {    //加入房间
@@ -77,6 +85,10 @@ public class ChatServerController {
 			model.put("action", "join");
 			model.put("userName", userName);
 			model.put("groupName", group.getGroupName());
+			//将组成员列表传入jsp(JSON)
+			ArrayList<String> groupMembers=group.getChat().getUsernameList();
+			String jsonList=new Gson().toJson(groupMembers);
+			model.put("groupMemberList", jsonList);
 			return new ModelAndView("chatGroup");
 		}
 		return new ModelAndView(new RedirectView("/",true));

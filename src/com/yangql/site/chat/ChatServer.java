@@ -169,7 +169,6 @@ public class ChatServer {
 		try {
 			session.getBasicRemote().sendText(mapper.writeValueAsString(message));
 		} catch (IOException e) {
-			log(e);
 			e.printStackTrace();
 		}
 	}
@@ -186,7 +185,7 @@ public class ChatServer {
 		private String groupName;
 		private Map<String, Session> groupMembers = new Hashtable<>();
 		private Chat chat;
-		private Long memNums=1L;
+		private Long memNums=0L;
 		
 		public Long getMemNums() {
 			return memNums;
