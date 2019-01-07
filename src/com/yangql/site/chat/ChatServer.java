@@ -54,7 +54,7 @@ public class ChatServer {
 				} else if (action.equals("join")) {
 					ChatGroup group = ChatServer.activeGroupsQueue.get(groupId);
 					group.setGroupMember(userName, session);// 加入session
-					group.chat.setUsernameList(userName);// 成员名字保存在chat
+					//group.chat.setUsernameList(userName);// 成员名字保存在chat(已保存过)
 					// 向其他成员发送消息：xx已加入
 					this.sendControllMsg(group, userName, ChatMessage.msgType.JOINED);
 				}
@@ -100,6 +100,7 @@ public class ChatServer {
 					session.close();
 					group.groupMembers.remove(userName);// 移除该用户的session
 					group.memNums--;
+					group.chat.getUsernameList().removeIf(s -> s.contains(userName));
 					this.sendControllMsg(group, userName, ChatMessage.msgType.LEFT);// 发送离开消息
 				}
 			} catch (Exception e) {
